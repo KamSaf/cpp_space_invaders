@@ -7,7 +7,8 @@
 #include <tuple>
 #include <vector>
 
-const int WIDTH = 80;
+const int X_POSITION = 0;
+const int WIDTH = 60;
 const int HEIGHT = 23;
 const int HEADER_HIGHT = 3;
 const int FOOTER_HEIGHT = 3;
@@ -18,36 +19,34 @@ const int GAME_BOARD_Y = MAIN_WINDOW_Y + 1;
 const int FOOTER_Y = GAME_BOARD_Y + GAME_BOARD_HEIGHT;
 const int SHIP_Y = 15;
 
-std::tuple<WINDOW *, WINDOW *, WINDOW *> CreateGameWindows() {
-  WINDOW *header = newwin(HEADER_HIGHT, WIDTH, 0, 0);
+std::tuple<WINDOW *, WINDOW *, WINDOW *, WINDOW *> CreateGameWindows() {
+  WINDOW *header = newwin(HEADER_HIGHT, WIDTH, 0, X_POSITION);
   wborder(header, 0, 0, 0, ' ', 0, 0, 0, 0);
   mvwprintw(header, 1, WIDTH / 2 - 8, "Space Invaders");
-  WINDOW *footer = newwin(FOOTER_HEIGHT, WIDTH, FOOTER_Y, 0);
+  WINDOW *footer = newwin(FOOTER_HEIGHT, WIDTH, FOOTER_Y, X_POSITION);
   wborder(footer, 0, 0, ' ', 0, 0, 0, 0, 0);
   mvwprintw(footer, 1, 1, "Score: ");
   mvwprintw(footer, 1, WIDTH - 28, "created by Kamil Safaryjski");
 
-  WINDOW *mainWin = newwin(MAIN_WINDOW_HEIGHT, WIDTH, MAIN_WINDOW_Y, 0);
+  WINDOW *mainWin =
+      newwin(MAIN_WINDOW_HEIGHT, WIDTH, MAIN_WINDOW_Y, X_POSITION);
   box(mainWin, 0, 0);
-  WINDOW *gameWin = newwin(GAME_BOARD_HEIGHT, WIDTH - 2, GAME_BOARD_Y, 1);
+  WINDOW *gameWin =
+      newwin(GAME_BOARD_HEIGHT, WIDTH - 2, GAME_BOARD_Y, X_POSITION + 1);
   nodelay(gameWin, TRUE);
   wrefresh(header);
   wrefresh(footer);
   wrefresh(mainWin);
   wrefresh(gameWin);
-  return std::make_tuple(mainWin, gameWin, header);
+  return std::make_tuple(mainWin, gameWin, header, footer);
 }
 
-void DrawShip(WINDOW *win, int x) {
-  mvwprintw(win, SHIP_Y, x, "^");
-  wrefresh(win);
-}
+void DrawShip(WINDOW *win, int x) { mvwprintw(win, SHIP_Y, x, "^"); }
 
 void DrawBullets(WINDOW *win, std::vector<std::tuple<int, int>> &bullets) {
   for (std::tuple<int, int> bullet : bullets) {
     mvwprintw(win, std::get<0>(bullet), std::get<1>(bullet), "o");
   }
-  wrefresh(win);
 }
 
 void UpdateBullets(WINDOW *win, std::vector<std::tuple<int, int>> &bullets) {
@@ -58,7 +57,6 @@ void UpdateBullets(WINDOW *win, std::vector<std::tuple<int, int>> &bullets) {
       continue;
     }
   }
-  wrefresh(win);
 }
 
 bool inputLeft(int ch) { return ch == KEY_LEFT || ch == 'a'; }
@@ -75,14 +73,14 @@ int main() {
   curs_set(0);
   cbreak();
   srand(time(0));
-  // WINDOW *mainWin = CreateGameWindow();
 
-  auto [mainWin, gameWin, header] = CreateGameWindows();
+  auto [mainWin, gameWin, header, footer] = CreateGameWindows();
 
   while (true) {
     wclear(gameWin);
     DrawShip(gameWin, shipX);
     DrawBullets(gameWin, bullets);
+    wrefresh(gameWin);
     int moveX = 0;
     int ch = wgetch(gameWin);
 
@@ -90,7 +88,7 @@ int main() {
       moveX = shipX > 2 ? -3 : 0;
     }
     if (inputRight(ch)) {
-      moveX = shipX < 55 ? 3 : 0;
+      moveX = shipX < WIDTH - 5 ? 3 : 0;
     }
     if (inputSpace(ch)) {
       bullets.push_back(std::make_tuple(SHIP_Y - 1, shipX));
@@ -102,7 +100,7 @@ int main() {
   delwin(gameWin);
   delwin(mainWin);
   delwin(header);
-
+  delwin(footer);
   endwin();
   return 0;
 }
