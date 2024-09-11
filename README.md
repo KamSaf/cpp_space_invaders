@@ -15,7 +15,7 @@ C++ simple space invaders game created with the usage of ncurses library.
 
         sudo apt-get install libncurses5-dev libncursesw5-dev
 
-4. When in project root directory compile the ```app.cpp``` file, if you use GCC run:
+4. When in project root directory compile the ```app.cpp``` file and link ncurses library, if you use GCC run:
 
         g++ -o space_invaders.out app.cpp -lncurses 
 
