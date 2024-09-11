@@ -26,8 +26,6 @@ std::tuple<WINDOW *, WINDOW *, WINDOW *, WINDOW *> CreateGameWindows() {
   WINDOW *footer = newwin(FOOTER_HEIGHT, WIDTH, FOOTER_Y, X_POSITION);
   wborder(footer, 0, 0, ' ', 0, 0, 0, 0, 0);
   mvwprintw(footer, 1, 1, "Score: ");
-  mvwprintw(footer, 1, WIDTH - 28, "created by Kamil Safaryjski");
-
   WINDOW *mainWin =
       newwin(MAIN_WINDOW_HEIGHT, WIDTH, MAIN_WINDOW_Y, X_POSITION);
   box(mainWin, 0, 0);
@@ -65,6 +63,8 @@ bool inputRight(int ch) { return ch == KEY_RIGHT || ch == 'd'; }
 
 bool inputSpace(int ch) { return ch == ' '; }
 
+bool inputAuthor(int ch) { return ch == 'k'; }
+
 int main() {
   int shipX = WIDTH / 2;
   std::vector<std::tuple<int, int>> bullets;
@@ -93,6 +93,11 @@ int main() {
     if (inputSpace(ch)) {
       bullets.push_back(std::make_tuple(SHIP_Y - 1, shipX));
     }
+    if (inputAuthor(ch)) {
+      mvwprintw(footer, 1, WIDTH - 28, "created by Kamil Safaryjski");
+      wrefresh(footer);
+    }
+
     shipX += moveX;
     UpdateBullets(gameWin, bullets);
     usleep(45000);
