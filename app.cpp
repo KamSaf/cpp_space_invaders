@@ -19,6 +19,14 @@ const int GAME_BOARD_Y = MAIN_WINDOW_Y + 1;
 const int FOOTER_Y = GAME_BOARD_Y + GAME_BOARD_HEIGHT;
 const int SHIP_Y = 15;
 
+void setup() {
+  initscr();
+  noecho();
+  curs_set(0);
+  cbreak();
+  srand(time(0));
+}
+
 std::tuple<WINDOW *, WINDOW *, WINDOW *, WINDOW *> CreateGameWindows() {
   WINDOW *header = newwin(HEADER_HIGHT, WIDTH, 0, X_POSITION);
   wborder(header, 0, 0, 0, ' ', 0, 0, 0, 0);
@@ -57,23 +65,18 @@ void UpdateBullets(WINDOW *win, std::vector<std::tuple<int, int>> &bullets) {
   }
 }
 
-bool inputLeft(int ch) { return ch == KEY_LEFT || ch == 'a'; }
+bool inputLeft(int input) { return input == KEY_LEFT || input == 'a'; }
 
-bool inputRight(int ch) { return ch == KEY_RIGHT || ch == 'd'; }
+bool inputRight(int input) { return input == KEY_RIGHT || input == 'd'; }
 
-bool inputSpace(int ch) { return ch == ' '; }
+bool inputSpace(int input) { return input == ' '; }
 
-bool inputAuthor(int ch) { return ch == 'k'; }
+bool inputAuthor(int input) { return input == 'k'; }
 
 int main() {
   int shipX = WIDTH / 2;
   std::vector<std::tuple<int, int>> bullets;
-  initscr();
-  noecho();
-  curs_set(0);
-  cbreak();
-  srand(time(0));
-
+  setup();
   auto [mainWin, gameWin, header, footer] = CreateGameWindows();
 
   while (true) {
@@ -82,18 +85,18 @@ int main() {
     DrawBullets(gameWin, bullets);
     wrefresh(gameWin);
     int moveX = 0;
-    int ch = wgetch(gameWin);
+    int input = wgetch(gameWin);
 
-    if (inputLeft(ch)) {
+    if (inputLeft(input)) {
       moveX = shipX > 2 ? -3 : 0;
     }
-    if (inputRight(ch)) {
+    if (inputRight(input)) {
       moveX = shipX < WIDTH - 5 ? 3 : 0;
     }
-    if (inputSpace(ch)) {
+    if (inputSpace(input)) {
       bullets.push_back(std::make_tuple(SHIP_Y - 1, shipX));
     }
-    if (inputAuthor(ch)) {
+    if (inputAuthor(input)) {
       mvwprintw(footer, 1, WIDTH - 28, "created by Kamil Safaryjski");
       wrefresh(footer);
     }
