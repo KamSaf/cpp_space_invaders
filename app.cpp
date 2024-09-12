@@ -32,10 +32,10 @@ std::tuple<WINDOW *, WINDOW *, WINDOW *, WINDOW *> CreateGameWindows() {
   WINDOW *gameWin =
       newwin(GAME_BOARD_HEIGHT, WIDTH - 2, GAME_BOARD_Y, X_POSITION + 1);
   nodelay(gameWin, TRUE);
-  wrefresh(header);
-  wrefresh(footer);
-  wrefresh(mainWin);
-  wrefresh(gameWin);
+
+  for (WINDOW *win : {header, footer, mainWin, gameWin}) {
+    wrefresh(win);
+  }
   return std::make_tuple(mainWin, gameWin, header, footer);
 }
 
@@ -50,7 +50,7 @@ void DrawBullets(WINDOW *win, std::vector<std::tuple<int, int>> &bullets) {
 void UpdateBullets(WINDOW *win, std::vector<std::tuple<int, int>> &bullets) {
   for (int i = 0; i < bullets.size(); i++) {
     int x = std::get<0>(bullets[i])--;
-    if (x < 5) {
+    if (x < 1) {
       bullets.erase(bullets.begin() + i);
       continue;
     }
@@ -102,10 +102,9 @@ int main() {
     UpdateBullets(gameWin, bullets);
     usleep(45000);
   }
-  delwin(gameWin);
-  delwin(mainWin);
-  delwin(header);
-  delwin(footer);
+  for (WINDOW *win : {header, footer, mainWin, gameWin}) {
+    delwin(win);
+  }
   endwin();
   return 0;
 }
